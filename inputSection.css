@@ -1,0 +1,82 @@
+.inputSection {
+    border-radius: 5px;
+    background-color: #f8f9fa;
+    padding: 15px;
+    margin: 15px;
+    color: #334155;
+
+    border: 1px solid #e2e8f0;
+  }
+
+  .inputSectionUp {
+    display: flex;
+    flex-direction: column;
+  }
+
+  input {
+    background-color: white;
+    border-radius: 5px;
+    width: 95%;
+    border: 1px solid #e2e8f0;
+    height: 40px;
+    padding-inline: 5px;
+    margin-bottom: 15px;
+    box-shadow: none;
+    outline: none;
+  }
+
+  input:focus {
+    border: 2px solid  rgb(50, 47, 177);
+  }
+
+  label {
+    margin: 5px 0;
+    font-weight: bold;
+  }
+
+  .compareRow {
+    display: flex;
+    margin-top: 10px;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .compareRow p{
+    flex: 1;
+  }
+
+  button {
+    background-color: rgb(50, 47, 177);
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 10px 20px;
+    cursor: pointer;
+  }
+
+  p {
+    color: #6c757d;
+    background-color: #f8f9fa9c;
+    margin: 10px 0;
+  }
+
+  #smaller {
+    background-color: #eeeded;
+    font-size: smaller;
+    border-radius: 5px;
+    display: inline-block;
+    padding: 6px 10px;
+    margin-top: 10px;
+  }
+  
+  input.error {
+    border: 2px solid red;
+}
+
+.error-message {
+    color: red;
+    font-size: 0.9em;
+    margin-top: 2px;
+}

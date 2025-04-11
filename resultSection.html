@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>heloo world app</title>
+        <link rel="stylesheet" href="resulSection.css">
+    </head>
+    <body>
+        <div class="resultSection">
+        <h2>Similarity Results</h1>
+      
+        <div class="resultSectionUp">
+          <div class="usedWords">
+            <div class="circle" id="matchCircle">
+              <span id="matchPercent">0%</span>
+            </div>
+          </div>
+          <div class="textInfo">
+            <label>Keywords Used</label>
+            <p id="keywordsUsed">[Tu će ići podaci]</p>
+            <label>URL Analyzed</label>
+            <p id="urlAnalyzed">[Tu će ići URL]</p>
+          </div>
+        </div>
+      
+        <div class="resultSectionDown">
+          <p id="analysisTime">Analysis completed in X seconds</p>
+          <button class="exportBtn">Export</button>
+          <button class="searchBtn" id="newSearchBtn">New Search</button>
+          <p id="extraInfo">Word count: X<br/>Vector dimensions: Y</p>
+          <button class="showPrevBtn">Show Previous Result</button>
+        </div>
+        <div id="similarityScore" class="score-highlight"></div>
+    </div>
+      </body>
+</html>
+
