@@ -2,7 +2,6 @@
 const { chromium } = require('playwright');
 
 async function scrapeContent(url) {
-  console.log(url)
   const browser = await chromium.launch();
   const page = await browser.newPage();
 
@@ -11,14 +10,17 @@ async function scrapeContent(url) {
 
    
     await page.evaluate(() => {
-      const selectorsToRemove = ['nav', 'header', 'footer', 'aside', '.ads', '.advertisement'];
+      const selectorsToRemove = [
+        'nav', 'header', 'footer', 'aside', 'script', 'style',
+        '.ads', '.advertisement', '.promo', '.newsletter', '.popup', '.cookie'
+      ];
       selectorsToRemove.forEach(selector => {
         document.querySelectorAll(selector).forEach(el => el.remove());
       });
     });
 
     const content = await page.evaluate(() => {
-      const candidates = ['article', 'main', 'section', '[role=main]'];
+      const candidates = ['article', 'main', 'section', '[role=main]', '.post', '.content', '.article-body'];
       for (const selector of candidates) {
         const el = document.querySelector(selector);
         if (el && el.innerText.length > 200) {
