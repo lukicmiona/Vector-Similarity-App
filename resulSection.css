@@ -96,13 +96,14 @@
   }
 
   .circle {
-    width: 100px;
-    height: 100px;
+    width: 120px;
+    height: 120px;
     border-radius: 50%;
-    background: conic-gradient(#4caf50 0%, #ccc 0%);
+    background: conic-gradient(green 0%, #eee 0%);
     display: flex;
-    align-items: center;
     justify-content: center;
-    font-weight: bold;
+    align-items: center;
     font-size: 20px;
-  }
+    color: #fff;
+    font-weight: bold;
+}

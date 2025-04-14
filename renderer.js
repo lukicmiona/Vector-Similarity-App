@@ -2,7 +2,7 @@ const contentDiv = document.getElementById('content');
 const { ipcRenderer } = require('electron');
 const {validateKeywords} =require('./validation')
 const {validateUrl} = require('./validation')
-const { normalizeVector, cosineSimilarity, toPercentage } = require('./similarityUtils');
+const { normalizeVector, cosineSimilarity, toPercentage, countOccurrences } = require('./similarityUtils');
 
 
 function loadHTML(filePath) {
@@ -37,6 +37,8 @@ function addEventListeners() {
 
         if (validKeywords && validUrl) {
             loadHTML('loadingState.html');
+            const startTime = performance.now();
+
             const url = document.getElementById('urlInput').value.trim();
             const words = document.getElementById('keywordsInput').value.split(',').map(word => word.trim()).join(' ');
            
@@ -62,8 +64,40 @@ function addEventListeners() {
                             const similarities = keywordVectors.map(vec => cosineSimilarity(vec, contentVector));
                             const percentages = similarities.map(toPercentage);
                     
-                            console.log('Slicnosti po kljucnoj reci:', percentages);
+            
+                            const endTime = performance.now();
+                            const durationInSeconds = ((endTime - startTime) / 1000).toFixed(2);
+                            
+                            console.log(result.content);
                             loadHTML('resultSection.html');
+                            setTimeout(() => {
+                                document.getElementById('keywordUsed').textContent = words;
+                                document.getElementById('urlAnalized').textContent = url;
+                                document.getElementById('analysisTime').textContent = `Analysis complited in ${durationInSeconds} seconds.`;
+                            
+                            
+                                const vectorDimension = keywordsEmbedding.data.predictions[0].embeddings.values.length;
+                            
+
+                                document.getElementById('extraInfo').textContent = `Vector dimension: ${vectorDimension}`;
+
+                                const average = similarities.reduce((a, b) => a + b, 0) / similarities.length;
+                                const percentageValue = toPercentage(average); 
+
+                               
+                                document.getElementById('matchPercent').textContent = `${percentageValue}%`;
+
+                            
+                                const matchCircle = document.getElementById('matchCircle');
+                                matchCircle.style.background = `conic-gradient(
+                                    ${percentageValue >= 75 ? 'green' : percentageValue >= 50 ? 'orange' : 'red'} ${percentageValue}%,
+                                    #eee ${percentageValue}%
+                                )`;
+
+
+                                
+                                addEventListeners(); 
+                            }, 100);
                             
                         } else {
                             console.error('Embedding error');
