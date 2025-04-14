@@ -5,6 +5,8 @@ Electron-based application that analyzes content similarity between user-provide
 
 ## Features
 - URL scraping
+- Filtering of ads/navigation/footers
+- Support for blogs, articles, product pages
 - Keyword comparison with vector embeddings
 - Similarity percentage calculation
 - Responsive UI
@@ -16,7 +18,16 @@ Electron-based application that analyzes content similarity between user-provide
 - Playwright
 - Node.js
 
-## Run the App
+## Folder Structure
+
+- `main.js` - Electron app main process
+- `contentScraper.js` - Scraper logic using Playwright
+- `renderer.js` - Frontend logic
+- `validation.js` - Input validation
+- `similarityUtils.js` - Embedding and similarity calculations
+
+## Set up 
 ```bash
 npm install
 npm start
+npm test
