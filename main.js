@@ -9,6 +9,9 @@ const { scrapeContent } = require('./contentScraper');
 const fetch = require('node-fetch');
 const { exec } = require('child_process');
 const { GoogleAuth } = require('google-auth-library');
+const axios = require('axios');
+const { normalizeVector, cosineSimilarity, toPercentage } = require('./similarityUtils');
+
 
 let win;
 
@@ -54,21 +57,6 @@ ipc.handle('embed-text', async (event, text) => {
 });
 
 
-
-function getAccessToken() {
-    return new Promise((resolve, reject) => {
-      exec('gcloud auth application-default print-access-token', (error, stdout, stderr) => {
-        if (error) {
-          reject(`Greška: ${stderr}`);
-        } else {
-          resolve(stdout.trim());
-        }
-      });
-    });
-  }
-  
-
-
   const auth = new GoogleAuth({
     keyFile: './credentials/vertex.json',
     scopes: ['https://www.googleapis.com/auth/cloud-platform']
@@ -79,7 +67,7 @@ function getAccessToken() {
     const client = await auth.getClient();
     console.log("Using service account:", client.email);
 
-    const url = 'https://us-central1-aiplatform.googleapis.com/v1/projects/text-embedding-project/locations/us-central1/publishers/google/models/text-embedding-005:predict';
+    const url = 'https://us-central1-aiplatform.googleapis.com/v1/projects/text-embedding-project-456505/locations/us-central1/publishers/google/models/text-embedding-005:predict';
   
     const res = await client.request({
       url,

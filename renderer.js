@@ -1,5 +1,7 @@
 const contentDiv = document.getElementById('content');
 const { ipcRenderer } = require('electron');
+const { normalizeVector, cosineSimilarity, toPercentage } = require('./similarityUtils');
+
 
 function loadHTML(filePath) {
     fetch(filePath)
@@ -34,29 +36,43 @@ function addEventListeners() {
         if (validKeywords && validUrl) {
             loadHTML('loadingState.html');
             const url = document.getElementById('urlInput').value.trim();
-            
+            const words = document.getElementById('keywordsInput').value.split(',').map(word => word.trim()).join(' ');
+           
+
+     
             try {
                 const result = await ipcRenderer.invoke('scrape-content', url);
 
                 if (result.success) {
-                    loadHTML('resultSection.html');
+                    
                     console.log('Scraped content:', result.content);
-                    const embeddingResult = await ipcRenderer.invoke('embed-text', result.content);
-                    if (embeddingResult.success) {
-                        console.log('Embedding result:', embeddingResult.data);
-                        console.log(embeddingResult);
-                    } else {
-                        console.error('Embedding failed:', embeddingResult.error);
+                    
+                    try {
+                        const keywordsEmbedding = await ipcRenderer.invoke('embed-text', words);
+                        
+                        const contentEmbedding = await ipcRenderer.invoke('embed-text', result.content);
+                        
+                        console.log(keywordsEmbedding);
+                        if (keywordsEmbedding.success && contentEmbedding.success) {
+                            const keywordVectors = keywordsEmbedding.data.predictions.map(p => normalizeVector(p.embeddings.values));
+                            const contentVector = normalizeVector(contentEmbedding.data.predictions[0].embeddings.values);
+                    
+                            const similarities = keywordVectors.map(vec => cosineSimilarity(vec, contentVector));
+                            const percentages = similarities.map(toPercentage);
+                    
+                            console.log('Slicnosti po kljucnoj reci:', percentages);
+                            loadHTML('resultSection.html');
+                            
+                        } else {
+                            console.error('Embedding error');
+                        }
+                    } catch (err) {
+                        console.error('Embedding error:', err);
                     }
-
-                    const scrapedDataDiv = document.getElementById('scrapedData');
-                    if (scrapedDataDiv) {
-                        scrapedDataDiv.textContent = JSON.stringify(result.content, null, 2); 
-                    } else {
-                        console.warn('Element sa id="scrapedData" nije pronađen u resultSection.html');
-                    }
+                    
                 } else {
                     console.error('Scraping failed:', result.error);
+                    loadHTML('inputSection.html');
                 }
             } catch (error) {
                 console.error('Error during scraping:', error);
@@ -65,6 +81,7 @@ function addEventListeners() {
         }
     });
 
+    console.log("Stigla sam dovde")
     const newSearchBtn = document.getElementById('newSearchBtn');
     if (newSearchBtn) {
         newSearchBtn.addEventListener('click', () => {
