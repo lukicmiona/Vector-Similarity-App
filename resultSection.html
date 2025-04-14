@@ -8,25 +8,25 @@
         <div class="resultSection">
         <h2>Similarity Results</h1>
       
-        <div class="resultSectionUp">
-          <div class="usedWords">
-            <div class="circle" id="matchCircle">
-              <span id="matchPercent">0%</span>
+          <div class="resultSectionUp">
+            <div class="usedWords">
+              <div class="circle" id="matchCircle">
+                <span id="matchPercent">0%</span>
+              </div>
             </div>
-          </div>
           <div class="textInfo">
             <label>Keywords Used</label>
-            <p id="keywordsUsed">[Tu će ići podaci]</p>
+            <p><strong>Korišćene reči:</strong> <span id="keywordUsed"></span></p>
             <label>URL Analyzed</label>
-            <p id="urlAnalyzed">[Tu će ići URL]</p>
+            <p><strong>Analizirani URL:</strong> <span id="urlAnalized"></span></p>
           </div>
         </div>
       
         <div class="resultSectionDown">
-          <p id="analysisTime">Analysis completed in X seconds</p>
+          <p><strong>Vreme analize:</strong> <span id="analysisTime"></span></p>
           <button class="exportBtn">Export</button>
           <button class="searchBtn" id="newSearchBtn">New Search</button>
-          <p id="extraInfo">Word count: X<br/>Vector dimensions: Y</p>
+          <p><strong>Dodatne informacije:</strong> <span id="extraInfo"></span></p>
           <button class="showPrevBtn">Show Previous Result</button>
         </div>
         <div id="similarityScore" class="score-highlight"></div>
