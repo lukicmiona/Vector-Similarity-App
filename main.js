@@ -11,6 +11,7 @@ const { exec } = require('child_process');
 const { GoogleAuth } = require('google-auth-library');
 const axios = require('axios');
 const { normalizeVector, cosineSimilarity, toPercentage } = require('./similarityUtils');
+const { formatHtmlToMarkdown } = require("./contentFormate");
 
 
 let win;
@@ -39,7 +40,11 @@ function createWindow() {
 ipc.handle('scrape-content', async (event, url) => {
     try {
       const result = await scrapeContent(url);
-      return result;
+      if(result.success){
+        const formatted=formatHtmlToMarkdown(result.content)
+        return {success:true,content:formatted}
+      }
+
     } catch (error) {
       return { success: false, error: error.message };
     }
