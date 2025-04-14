@@ -1,7 +1,7 @@
 const TurndownService = require('turndown');
 const { JSDOM } = require('jsdom');
 
-function formatHtmlToPlainText(htmlContent) {
+function formatHtmlToMarkdown(htmlContent) {
   const turndownService = new TurndownService({
     headingStyle: 'atx',
     codeBlockStyle: 'fenced',
@@ -11,15 +11,19 @@ function formatHtmlToPlainText(htmlContent) {
   const dom = new JSDOM(htmlContent);
   const document = dom.window.document;
 
-  const selectorsToRemove = ['nav', 'header', 'footer', 'aside', '.ads', '.advertisement', 'script', 'style'];
+  const selectorsToRemove = [
+    'nav', 'header', 'footer', 'aside', 'script', 'style',
+    '.ads', '.advertisement', '.promo', '.newsletter', '.popup', '.cookie'
+  ];
   selectorsToRemove.forEach(selector => {
     document.querySelectorAll(selector).forEach(el => el.remove());
   });
 
-  const cleanedHtml = document.body.innerHTML;
-  const markdown = turndownService.turndown(cleanedHtml);
+  const decodedHTML = document.body.innerHTML.replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&');
+
+  const markdown = turndownService.turndown(decodedHTML);
 
   return markdown;
 }
 
-module.exports = { formatHtmlToPlainText };
+module.exports = { formatHtmlToMarkdown};
