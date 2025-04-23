@@ -94,9 +94,15 @@ function addEventListeners() {
                                     #eee ${percentageValue}%
                                 )`;
 
-
-                                
+                               
+                                const newSearchBtn = document.getElementById('newSearchBtn');
+                                if (newSearchBtn) {
+                                    newSearchBtn.addEventListener('click', () => {
+                                        loadHTML('inputSection.html');
+                                    });
+                                }
                                 addEventListeners(); 
+
                             }, 100);
                             
                         } else {
@@ -117,12 +123,4 @@ function addEventListeners() {
         }
     });
 
-    console.log("Stigla sam dovde")
-    const newSearchBtn = document.getElementById('newSearchBtn');
-    if (newSearchBtn) {
-        newSearchBtn.addEventListener('click', () => {
-            console.log("heeeeej")
-            loadHTML('inputSection.html');
-        });
-    }
 }

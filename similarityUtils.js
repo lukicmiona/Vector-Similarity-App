@@ -1,5 +1,3 @@
-// similarityUtils.js
-
 function normalizeVector(vec) {
     if (!Array.isArray(vec) || vec.length === 0) return [];
     const magnitude = Math.sqrt(vec.reduce((sum, val) => sum + val * val, 0));
@@ -17,10 +15,11 @@ function cosineSimilarity(vec1, vec2) {
     return magnitude1 && magnitude2 ? dotProduct / (magnitude1 * magnitude2) : 0;
 }
 
-function toPercentage(similarity) {
-    const clamped = Math.max(0, Math.min(1, similarity));
-    return parseFloat((clamped * 100).toFixed(2)); 
+function toPercentage(value) {
+    const clamped = Math.min(Math.max(value, 0), 1);
+    return (clamped * 100).toFixed(2);
 }
+
 
 function countOccurrences(text, keywords) {
     if (typeof text !== 'string' || !Array.isArray(keywords)) return {};

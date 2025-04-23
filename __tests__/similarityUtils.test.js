@@ -51,15 +51,15 @@ describe('cosineSimilarity', () => {
 
 describe('toPercentage', () => {
     test('converts similarity to percentage string', () => {
-        expect(toPercentage(0.4567)).toBe('45.67%');
+        expect(toPercentage(0.4567)).toBe('45.67');
     });
 
     test('clamps values below 0 to 0%', () => {
-        expect(toPercentage(-0.5)).toBe('0.00%');
+        expect(toPercentage(-0.5)).toBe('0.00');
     });
 
     test('clamps values above 1 to 100%', () => {
-        expect(toPercentage(1.5)).toBe('100.00%');
+        expect(toPercentage(1.5)).toBe('100.00');
     });
 });
 

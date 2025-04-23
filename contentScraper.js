@@ -18,16 +18,30 @@ async function scrapeContent(url) {
         document.querySelectorAll(selector).forEach(el => el.remove());
       });
     });
-
+    
     const content = await page.evaluate(() => {
-      const candidates = ['article', 'main', 'section', '[role=main]', '.post', '.content', '.article-body'];
+      const candidates = [
+        'article', 'main', 'section', '[role=main]', '.post', '.content', '.home',
+        '.article-body', '#main', 'div#main', '.post-content', '.main-content',
+        '.entry-content', '.blog-post', '.readable-content', '.text', '.page-body'
+      ];
+      let bestMatch = null;
+      let maxLength = 0;
+
       for (const selector of candidates) {
         const el = document.querySelector(selector);
-        if (el && el.innerText.length > 200) {
-          return el.innerText;
+        if (el) {
+          const text = el.innerText.trim();
+          if (text.length > maxLength && text.length > 200) {
+            bestMatch = text;
+            maxLength = text.length;
+          }
         }
       }
-      return document.body.innerText;
+
+      return bestMatch || document.body.innerText;
+
+      
     });
 
     await browser.close();
