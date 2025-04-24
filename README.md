@@ -1,54 +1,53 @@
-# Vector Similarity App
+# Web Content Similarity Analyzer
 
-## Description
-Electron-based application that analyzes content similarity between user-provided keywords and webpage content using Google Vertex AI.
- Web Content Scraper & Formatter
+This project is a desktop application built with Electron and Playwright that allows users to analyze the similarity between user-provided keywords and the content of any webpage. It uses Google's Vertex AI embedding model to compute semantic similarity and presents the results in a visually intuitive format.
 
-This module transforms scraped HTML content into clean, well-structured Markdown, optimized for Retrieval-Augmented Generation (RAG) pipelines.
+## 🧠 Features
 
-## Features
-- URL scraping
-- Filtering of ads/navigation/footers
-- Support for blogs, articles, product pages
-- Keyword comparison with vector embeddings
-- Similarity percentage calculation
-- Responsive UI
-- Export and history features (upcoming)
+- Scrapes and cleans web content from user-specified URLs
+- Converts HTML content into Markdown
+- Uses Google's text-embedding model for generating vector representations
+- Computes cosine similarity between keyword and content embeddings
+- Visualizes the similarity score with an interactive UI
+- Detects low-quality or non-readable web content
+- Easy-to-use Electron-based GUI
 
-- Removes ads, headers, footers, scripts, and other irrelevant elements
-- Preserves heading structure
-- Converts lists and code blocks properly
-- Handles special HTML entities and cleans artifacts
-- Outputs plain Markdown, ready for embedding or vectorization
 
-## Tech Stack
-- Electron.js
-- Google Vertex AI
-- Playwright
-- Node.js
 
-## Folder Structure
+## ⚙️ Requirements
 
-- `main.js` - Electron app main process
-- `contentScraper.js` - Scraper logic using Playwright
-- `renderer.js` - Frontend logic
-- `validation.js` - Input validation
-- `similarityUtils.js` - Embedding and similarity calculations
+- Node.js v16+
+- Google Cloud account with access to Vertex AI API
+- Playwright dependencies (auto-installed)
+- Electron
+- A valid `vertex.json` key file placed under `./credentials/`
 
-## Google Vertex AI Integration
+## 🌐 How It Works
 
-This app uses [Google Vertex AI](https://cloud.google.com/vertex-ai) for embedding generation.
+1.**User inputs** a webpage URL and a list of keywords  
+2. The app **scrapes the page** using Playwright and extracts meaningful text  
+3. The content and keywords are **embedded using Vertex AI's embedding model**  
+4. **Cosine similarity** is calculated between the keyword and content embeddings  
+5. Results are **displayed in the GUI**, showing similarity percentage, vector stats, and processing time  
 
-## Set up 
+
+## 🛡️ Technologies Used
+
+- **Electron** – Cross-platform desktop app framework  
+- **Playwright** – Browser automation for scraping  
+- **Google Vertex AI** – Embedding model API  
+- **Turndown** – Converts HTML to Markdown  
+- **JSDOM** – Parses and manipulates HTML in Node  
+- **@mozilla/readability** – Extracts readable content from webpages  
+
+
+
+## 🛠️ Setup & Run
+
+1. **Install dependencies:**
+
 ```bash
 npm install
+
+2. **Run the app**
 npm start
-npm test
-### Setup
-
-1. Create a Google Cloud project.
-2. Enable Vertex AI API.
-3. Generate a service account key and download it as `vertex.json`.
-4. Place it in `credentials/vertex.json` (add to `.gitignore`!).
-
-

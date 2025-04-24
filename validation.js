@@ -27,8 +27,8 @@ function validateKeywords() {
     input.classList.remove('error');
     errorDiv.textContent = '';
 
-    if (keywords.length < 3) {
-      errorDiv.textContent = 'Keywords must be at least 3 characters.';
+    if (keywords.length < 2) {
+      errorDiv.textContent = 'Keywords must be at least 2 characters.';
       input.classList.add('error');
       return false;
     }

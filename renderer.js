@@ -1,126 +1,100 @@
-const contentDiv = document.getElementById('content');
 const { ipcRenderer } = require('electron');
-const {validateKeywords} =require('./validation')
-const {validateUrl} = require('./validation')
-const { normalizeVector, cosineSimilarity, toPercentage, countOccurrences } = require('./similarityUtils');
+const { validateKeywords, validateUrl } = require('./validation');
+const { normalizeVector, cosineSimilarity, toPercentage } = require('./similarityUtils');
 
+const contentDiv = document.getElementById('content');
 
-function loadHTML(filePath) {
-    fetch(filePath)
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Failed to load file');
-            }
-            return response.text();
-        })
-        .then(data => {
-            contentDiv.innerHTML = data;
-            addEventListeners();
-        })
-        .catch(error => {
-            console.error(error);
-        });
-}
-
-// Load the input form (inputSection.html) when the page is ready
-window.onload = function() {
-    loadHTML('inputSection.html');
-    document.getElementById('urlInput').addEventListener('focusout', validateUrl);
+window.onload = () => {
+    loadHTML('inputSection.html').then(() => {
+        document.getElementById('urlInput')?.addEventListener('focusout', validateUrl);
+        addMainEventListeners();
+    });
 };
 
-// Adding event listeners dynamically after HTML is loaded
-function addEventListeners() {
+async function loadHTML(filePath) {
+    try {
+        const response = await fetch(filePath);
+        if (!response.ok) throw new Error('Failed to load file');
+        const html = await response.text();
+        contentDiv.innerHTML = html;
+    } catch (error) {
+        console.error('Error loading HTML:', error);
+    }
+}
+
+function addMainEventListeners() {
     const confirmBtn = document.getElementById('confirmBtn');
+    if (!confirmBtn) return;
+
     confirmBtn.addEventListener('click', async () => {
-        const validKeywords = validateKeywords();
-        const validUrl = validateUrl();
+        if (!validateKeywords() || !validateUrl()) return;
 
-        if (validKeywords && validUrl) {
-            loadHTML('loadingState.html');
-            const startTime = performance.now();
+        const url = document.getElementById('urlInput').value.trim();
+        const words = document.getElementById('keywordsInput').value.split(',').map(w => w.trim()).join(' ');
+        await loadHTML('loadingState.html');
 
-            const url = document.getElementById('urlInput').value.trim();
-            const words = document.getElementById('keywordsInput').value.split(',').map(word => word.trim()).join(' ');
-           
+        const startTime = performance.now();
 
-     
-            try {
-                const result = await ipcRenderer.invoke('scrape-content', url);
+        try {
+            const scrapeResult = await ipcRenderer.invoke('scrape-content', url);
+            if (!scrapeResult.success) throw new Error(scrapeResult.error);
 
-                if (result.success) {
-                    
-                    console.log('Scraped content:', result.content);
-                    
-                    try {
-                        const keywordsEmbedding = await ipcRenderer.invoke('embed-text', words);
-                        
-                        const contentEmbedding = await ipcRenderer.invoke('embed-text', result.content);
-                        
-                        console.log(keywordsEmbedding);
-                        if (keywordsEmbedding.success && contentEmbedding.success) {
-                            const keywordVectors = keywordsEmbedding.data.predictions.map(p => normalizeVector(p.embeddings.values));
-                            const contentVector = normalizeVector(contentEmbedding.data.predictions[0].embeddings.values);
-                    
-                            const similarities = keywordVectors.map(vec => cosineSimilarity(vec, contentVector));
-                            const percentages = similarities.map(toPercentage);
-                    
-            
-                            const endTime = performance.now();
-                            const durationInSeconds = ((endTime - startTime) / 1000).toFixed(2);
-                            
-                            console.log(result.content);
-                            loadHTML('resultSection.html');
-                            setTimeout(() => {
-                                document.getElementById('keywordUsed').textContent = words;
-                                document.getElementById('urlAnalized').textContent = url;
-                                document.getElementById('analysisTime').textContent = `Analysis complited in ${durationInSeconds} seconds.`;
-                            
-                            
-                                const vectorDimension = keywordsEmbedding.data.predictions[0].embeddings.values.length;
-                            
+            const [keywordsEmbedding, contentEmbedding] = await Promise.all([
+                ipcRenderer.invoke('embed-text', words),
+                ipcRenderer.invoke('embed-text', scrapeResult.content)
+            ]);
 
-                                document.getElementById('extraInfo').textContent = `Vector dimension: ${vectorDimension}`;
-
-                                const average = similarities.reduce((a, b) => a + b, 0) / similarities.length;
-                                const percentageValue = toPercentage(average); 
-
-                               
-                                document.getElementById('matchPercent').textContent = `${percentageValue}%`;
-
-                            
-                                const matchCircle = document.getElementById('matchCircle');
-                                matchCircle.style.background = `conic-gradient(
-                                    ${percentageValue >= 75 ? 'green' : percentageValue >= 50 ? 'orange' : 'red'} ${percentageValue}%,
-                                    #eee ${percentageValue}%
-                                )`;
-
-                               
-                                const newSearchBtn = document.getElementById('newSearchBtn');
-                                if (newSearchBtn) {
-                                    newSearchBtn.addEventListener('click', () => {
-                                        loadHTML('inputSection.html');
-                                    });
-                                }
-                                addEventListeners(); 
-
-                            }, 100);
-                            
-                        } else {
-                            console.error('Embedding error');
-                        }
-                    } catch (err) {
-                        console.error('Embedding error:', err);
-                    }
-                    
-                } else {
-                    console.error('Scraping failed:', result.error);
-                    loadHTML('inputSection.html');
-                }
-            } catch (error) {
-                console.error('Error during scraping:', error);
-                loadHTML('inputSection.html');
+            if (!keywordsEmbedding.success || !contentEmbedding.success) {
+                throw new Error('Embedding failed');
             }
+
+            const result = computeSimilarity(keywordsEmbedding, contentEmbedding);
+            const duration = ((performance.now() - startTime) / 1000).toFixed(2);
+            await loadResultsPage(result, words, url, duration);
+
+        } catch (err) {
+            console.error('Processing error:', err.message);
+            await loadHTML('inputSection.html');
+            addMainEventListeners();
         }
     });
+}
 
+
+function computeSimilarity(keywordsEmbedding, contentEmbedding) {
+    const keywordVectors = keywordsEmbedding.data.predictions.map(p => normalizeVector(p.embeddings.values));
+    const contentVector = normalizeVector(contentEmbedding.data.predictions[0].embeddings.values);
+
+    const similarities = keywordVectors.map(vec => cosineSimilarity(vec, contentVector));
+    const averageSimilarity = similarities.reduce((a, b) => a + b, 0) / similarities.length;
+
+    return {
+        similarities,
+        averagePercentage: toPercentage(averageSimilarity),
+        vectorDimension: contentVector.length
+    };
+}
+
+async function loadResultsPage({ similarities, averagePercentage, vectorDimension }, words, url, duration) {
+    await loadHTML('resultSection.html');
+
+    setTimeout(() => {
+        document.getElementById('keywordUsed').textContent = words;
+        document.getElementById('urlAnalized').textContent = url;
+        document.getElementById('analysisTime').textContent = `Analysis completed in ${duration} seconds.`;
+        document.getElementById('extraInfo').textContent = `Vector dimension: ${vectorDimension}`;
+        document.getElementById('matchPercent').textContent = `${averagePercentage}%`;
+
+        const matchCircle = document.getElementById('matchCircle');
+        matchCircle.style.background = `conic-gradient(
+            ${averagePercentage >= 75 ? 'green' : averagePercentage >= 50 ? 'orange' : 'red'} ${averagePercentage}%,
+            #eee ${averagePercentage}%
+        )`;
+
+        const newSearchBtn = document.getElementById('newSearchBtn');
+        newSearchBtn?.addEventListener('click', async () => {
+            await loadHTML('inputSection.html');
+            addMainEventListeners();
+        });
+    }, 100);
 }
