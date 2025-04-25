@@ -8,7 +8,6 @@ const ipc = electron.ipcMain;
 const { scrapeContent } = require('./contentScraper'); 
 const fetch = require('node-fetch');
 const { exec } = require('child_process');
-const { GoogleAuth } = require('google-auth-library');
 const axios = require('axios');
 const { normalizeVector, cosineSimilarity, toPercentage } = require('./similarityUtils');
 const { formatHtmlToMarkdown } = require("./contentFormate");
@@ -23,12 +22,14 @@ function createWindow() {
         height: 700,
         webPreferences: {
             nodeIntegration: true,
-            contextIsolation:false
+            contextIsolation: true,
+            preload: path.join(__dirname, '../../preload.js')
         }
+       
     });
-
+    console.log(__dirname);
     win.loadURL(url.format({
-        pathname: path.join(__dirname, 'main.html'),
+        pathname: path.join(__dirname, '../ui/main.html'),
         protocol: 'file:',
         slashes: true
     }));
@@ -45,9 +46,10 @@ ipc.handle('scrape-content', async (event, url) => {
         const formatted=formatHtmlToMarkdown(result.content)
         return {success:true,content:formatted}
       }
-
+      return { success: false, error: 'Scraping failed. No matching content' };
     } catch (error) {
-      return { success: false, error: error.message };
+        console.error('Scrape error:', error.stack || error.message);
+        return { success: false, error: 'Scraping failed: ' + error.message };
     }
 });
 
@@ -57,17 +59,12 @@ ipc.handle('embed-text', async (event, text) => {
         const embeddingResult = await getEmbedding(text);
         return { success: true, data: embeddingResult };
     } catch (error) {
-        console.error('Embedding error:', error);
-        return { success: false, error: error.message };
+        console.error('Embedding error:', error.stack || error.message);
+        return { success: false, error: 'Embedding failed: ' + error.message };
     }
 });
 
 
-  const auth = new GoogleAuth({
-    keyFile: './credentials/vertex.json',
-    scopes: ['https://www.googleapis.com/auth/cloud-platform']
-  });
-  
 
 app.on('ready', createWindow);
 

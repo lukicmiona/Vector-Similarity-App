@@ -13,7 +13,7 @@
     flex-direction: column;
   }
 
-  input {
+  .inputSection input {
     background-color: white;
     border-radius: 5px;
     width: 95%;
@@ -25,11 +25,11 @@
     outline: none;
   }
 
-  input:focus {
+  .inputSection input:focus {
     border: 2px solid  rgb(50, 47, 177);
   }
 
-  label {
+  .inputSection label {
     margin: 5px 0;
     font-weight: bold;
   }
@@ -47,7 +47,7 @@
     flex: 1;
   }
 
-  button {
+  #confirmBtn{
     background-color: rgb(50, 47, 177);
     color: white;
     border: none;
@@ -56,7 +56,7 @@
     cursor: pointer;
   }
 
-  p {
+  .iputSection p {
     color: #6c757d;
     background-color: #f8f9fa9c;
     margin: 10px 0;

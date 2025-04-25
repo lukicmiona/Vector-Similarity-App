@@ -21,20 +21,9 @@ function toPercentage(value) {
 }
 
 
-function countOccurrences(text, keywords) {
-    if (typeof text !== 'string' || !Array.isArray(keywords)) return {};
-    const wordArray = text.toLowerCase().split(/\W+/);
-    const counts = {};
-    keywords.forEach(k => {
-        const lowerK = k.toLowerCase();
-        counts[lowerK] = wordArray.filter(w => w === lowerK).length;
-    });
-    return counts;
-}
 
 module.exports = {
     normalizeVector,
     cosineSimilarity,
-    toPercentage,
-    countOccurrences
+    toPercentage
 };

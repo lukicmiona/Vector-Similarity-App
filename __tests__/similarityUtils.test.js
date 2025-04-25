@@ -3,7 +3,7 @@ const {
     cosineSimilarity,
     toPercentage,
     countOccurrences
-} = require('../similarityUtils');
+} = require('../src/scripts/similarityUtils');
 
 describe('normalizeVector', () => {
     test('normalizes a non-zero vector correctly', () => {
@@ -63,22 +63,3 @@ describe('toPercentage', () => {
     });
 });
 
-describe('countOccurrences', () => {
-    const text = 'Test this test with Test values. TEST again!';
-
-    test('counts occurrences of keywords (case insensitive)', () => {
-        const result = countOccurrences(text, ['test', 'again']);
-        expect(result.test).toBe(4);
-        expect(result.again).toBe(1);
-    });
-
-    test('returns 0 for keywords not in text', () => {
-        const result = countOccurrences(text, ['missing']);
-        expect(result.missing).toBe(0);
-    });
-
-    test('handles invalid input gracefully', () => {
-        expect(countOccurrences(null, ['test'])).toEqual({});
-        expect(countOccurrences(text, 'not-an-array')).toEqual({});
-    });
-});

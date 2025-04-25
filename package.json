@@ -1,9 +1,10 @@
 {
   "name": "hello-worls",
   "version": "1.0.0",
-  "main": "main.js",
+  "description": "Electron app for analyzing vector similarity of web content using Playwright and Google Vertex AI.",
+  "main": "src/scripts/main.js",
   "devDependencies": {
-    "electron": "^35.1.4",
+    "electron": "^32.3.3",
     "jest": "^29.7.0",
     "jest-environment-jsdom": "^29.7.0"
   },
@@ -14,26 +15,23 @@
   "jest": {
     "testEnvironment": "jsdom"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "electron",
+    "playwright",
+    "vector similarity",
+    "embedding",
+    "scraper"
+  ],
+  "author": "Miona Lukic",
   "license": "ISC",
-  "description": "",
   "dependencies": {
-    "18": "^0.0.0",
     "@google-cloud/aiplatform": "^4.1.0",
     "@google-cloud/vertexai": "^1.9.3",
     "@mozilla/readability": "^0.6.0",
-    "apify": "^3.4.0",
     "axios": "^1.8.4",
-    "cheerio": "^1.0.0",
-    "cherio": "^1.0.0-rc.2",
-    "crawlee": "^3.13.2",
-    "dotenv": "^16.4.7",
+    "dotenv": "^16.5.0",
     "google-auth-library": "^9.15.1",
-    "html-to-markdown": "^1.0.0",
     "jsdom": "^26.1.0",
-    "node-fetch": "^2.7.0",
-    "playright": "^0.0.22",
     "playwright": "^1.52.0",
     "turndown": "^7.2.0"
   }

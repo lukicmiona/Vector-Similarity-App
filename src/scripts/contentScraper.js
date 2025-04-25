@@ -47,15 +47,29 @@ async function scrapeContent(url) {
   try {
     const rawHtml = await fetchHtml(url);
     const cleanedHtml = cleanHtml(rawHtml, url);
-    console.log("sredjen html se nalazi ovde",cleanedHtml);
     const content = extractReadableContent(cleanedHtml, url);
 
-    console.log(content);
 
     if (!content) {
       const fallbackDom = new JSDOM(cleanedHtml, { url });
-      content = fallbackDom.window.document.body.textContent.trim().slice(0, 1000); 
+      const fallbackDoc = fallbackDom.window.document;
       
+      const candidates = ['article', 'main', 'section'];
+      let fallbackText = '';
+      
+      for (const tag of candidates) {
+        const el = fallbackDoc.querySelector(tag);
+        if (el && el.textContent.trim().length > 200) {
+          fallbackText = el.textContent.trim();
+          break;
+        }
+      }
+      
+      if (!fallbackText) {
+        fallbackText = fallbackDoc.body.textContent.trim();
+      }
+      
+      content = fallbackText.slice(0, 3000);
     }
 
 

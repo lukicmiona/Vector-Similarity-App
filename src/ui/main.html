@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vector Similarity App</title>
+    <link rel="stylesheet" href="../styles/main.css">
+    <link rel="stylesheet" href="../styles/inputSection.css">
+    <link rel="stylesheet" href="../styles/loadingState.css" />
+</head>
+<body>
+    <h1>Vector Similarity App</h1>
+
+    
+  <!-- INPUT SECTION -->
+  <div id="inputSection" class="inputSection">
+        <h2>Enter Comparison Data</h2>
+       <div class="inputSectionUp">
+        <label for="keywordsInput">Keywords</label>
+        <input id="keywordsInput" placeholder="Enter keywords separated by commas..." type="text" required>
+        <div id="keywordsError" class="error-message"></div>
+    
+        <label for="urlInput">URL</label>
+        <input id="urlInput" placeholder="https://example.com" type="url" required>
+        <div id="urlError" class="error-message"></div>
+        </div>
+        <div class="compareRow">
+            <p>
+              Enter keywords that you want to compare against the content of a URL.<br />
+              The app will return a similarity percentage based on vector embeddings.
+            </p>
+            <button id="confirmBtn">Compare</button>
+          </div>
+        <p id="smaller">Example:<b>machine learning, neural networks, AI </b> and a blog post URL</p>
+        <div id="scrapedData" style="white-space: pre-wrap; padding: 1em;"></div>
+        <div id="errorMessage" style="color: red; display: none; margin-top: 10px;"></div>
+
+
+  </div>
+
+  <!-- LOADING SECTION -->
+  <div id="loadingSection" style="display: none;">
+    <div class="spinner"></div>
+  </div>
+
+  <!-- RESULT SECTION -->
+  <div id="resultSection" class="resultSection" style="display: none;">
+    <h2>Similarity Results</h2>
+
+    <div class="resultSectionUp">
+        <div class="usedWords" id="matchCircle">
+            <div class="circle" >
+                <span id="matchPercent">0%</span>
+            </div>
+        </div>
+        <div class="textInfo">
+            <label>Keywords Used</label>
+            <p><strong></strong> <span id="keywordUsed"></span></p>
+            <label>URL Analyzed</label>
+            <p><strong></strong> <span id="urlAnalized"></span></p>
+        </div>
+    </div>
+
+    <div class="resultSectionDown">
+        <p> <span id="analysisTime"></span></p>
+        <button class="exportBtn">Export</button>
+        <button class="searchBtn" id="newSearchBtn">New Search</button>
+        <p> <span id="extraInfo"></span></p>
+        <button class="showPrevBtn">Show Previous Result</button>
+    </div>
+
+    <div id="similarityScore" class="score-highlight"></div>
+  </div>
+
+    <script src="../scripts/renderer.js"></script> 
+</body>
+</html>

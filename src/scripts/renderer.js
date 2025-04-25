@@ -1,26 +1,18 @@
-const { ipcRenderer } = require('electron');
-const { validateKeywords, validateUrl } = require('./validation');
-const { normalizeVector, cosineSimilarity, toPercentage } = require('./similarityUtils');
-
-const contentDiv = document.getElementById('content');
 
 window.onload = () => {
-    loadHTML('inputSection.html').then(() => {
-        document.getElementById('urlInput')?.addEventListener('focusout', validateUrl);
-        addMainEventListeners();
-    });
+    showSection('inputSection');
+    document.getElementById('urlInput')?.addEventListener('focusout',  validateUrl);
+    addMainEventListeners();
 };
 
-async function loadHTML(filePath) {
-    try {
-        const response = await fetch(filePath);
-        if (!response.ok) throw new Error('Failed to load file');
-        const html = await response.text();
-        contentDiv.innerHTML = html;
-    } catch (error) {
-        console.error('Error loading HTML:', error);
-    }
+function showSection(idToShow) {
+    const sections = ['inputSection', 'loadingSection', 'resultSection'];
+    sections.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.style.display = (id === idToShow) ? 'block' : 'none';
+    });
 }
+
 
 function addMainEventListeners() {
     const confirmBtn = document.getElementById('confirmBtn');
@@ -31,17 +23,18 @@ function addMainEventListeners() {
 
         const url = document.getElementById('urlInput').value.trim();
         const words = document.getElementById('keywordsInput').value.split(',').map(w => w.trim()).join(' ');
-        await loadHTML('loadingState.html');
+        showSection('loadingSection');
+
 
         const startTime = performance.now();
 
         try {
-            const scrapeResult = await ipcRenderer.invoke('scrape-content', url);
+            const scrapeResult = await window.api.scrapeContent(url);
             if (!scrapeResult.success) throw new Error(scrapeResult.error);
 
             const [keywordsEmbedding, contentEmbedding] = await Promise.all([
-                ipcRenderer.invoke('embed-text', words),
-                ipcRenderer.invoke('embed-text', scrapeResult.content)
+                window.api.embedText(words),
+                window.api.embedText(scrapeResult.content)
             ]);
 
             if (!keywordsEmbedding.success || !contentEmbedding.success) {
@@ -54,7 +47,10 @@ function addMainEventListeners() {
 
         } catch (err) {
             console.error('Processing error:', err.message);
-            await loadHTML('inputSection.html');
+            showSection('inputSection');
+            document.getElementById('errorMessage').textContent = err.message || 'An error occurred.';
+            document.getElementById('errorMessage').style.display = 'block';
+
             addMainEventListeners();
         }
     });
@@ -62,23 +58,25 @@ function addMainEventListeners() {
 
 
 function computeSimilarity(keywordsEmbedding, contentEmbedding) {
-    const keywordVectors = keywordsEmbedding.data.predictions.map(p => normalizeVector(p.embeddings.values));
-    const contentVector = normalizeVector(contentEmbedding.data.predictions[0].embeddings.values);
+    const keywordVectors = keywordsEmbedding.data.predictions.map(p => window.api.normalizeVector(p.embeddings.values));
+    const contentVector = window.api.normalizeVector(contentEmbedding.data.predictions[0].embeddings.values);
 
-    const similarities = keywordVectors.map(vec => cosineSimilarity(vec, contentVector));
+    const similarities = keywordVectors.map(vec => window.api.cosineSimilarity(vec, contentVector));
     const averageSimilarity = similarities.reduce((a, b) => a + b, 0) / similarities.length;
 
     return {
         similarities,
-        averagePercentage: toPercentage(averageSimilarity),
+        averagePercentage: window.api.toPercentage(averageSimilarity),
         vectorDimension: contentVector.length
     };
 }
 
 async function loadResultsPage({ similarities, averagePercentage, vectorDimension }, words, url, duration) {
-    await loadHTML('resultSection.html');
 
-    setTimeout(() => {
+    showSection('resultSection');
+
+
+    requestAnimationFrame(() => {
         document.getElementById('keywordUsed').textContent = words;
         document.getElementById('urlAnalized').textContent = url;
         document.getElementById('analysisTime').textContent = `Analysis completed in ${duration} seconds.`;
@@ -91,10 +89,28 @@ async function loadResultsPage({ similarities, averagePercentage, vectorDimensio
             #eee ${averagePercentage}%
         )`;
 
-        const newSearchBtn = document.getElementById('newSearchBtn');
-        newSearchBtn?.addEventListener('click', async () => {
-            await loadHTML('inputSection.html');
+        document.getElementById('newSearchBtn').addEventListener('click', () => {
+            showSection('inputSection');
             addMainEventListeners();
         });
-    }, 100);
+    });
+}
+
+function validateUrl() {
+    const input = document.getElementById('urlInput');
+    const errorDiv = document.getElementById('urlError');
+    const result = window.api.validateUrlValue(input.value);
+  
+    input.classList.toggle('error', !result.isValid);
+    errorDiv.textContent = result.isValid ? '' : result.error;
+    return result.isValid;
+  }
+function validateKeywords() {
+    const input = document.getElementById('keywordsInput');
+    const errorDiv = document.getElementById('keywordsError');
+    const result = window.api.validateKeywordsValue(input.value);
+
+    input.classList.toggle('error', !result.isValid);
+    errorDiv.textContent = result.isValid ? '' : result.error;
+    return result.isValid;
 }

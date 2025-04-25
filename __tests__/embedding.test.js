@@ -2,7 +2,7 @@ const { TextEncoder, TextDecoder } = require('util');
 global.TextEncoder = TextEncoder;
 global.TextDecoder = TextDecoder;
 
-const { getEmbedding } = require('../embeddingService');
+const { getEmbedding } = require('../src/scripts/embeddingService');
 
 describe('Embedding service', () => {
   it('returns valid embedding vector for simple input', async () => {
