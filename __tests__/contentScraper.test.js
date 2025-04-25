@@ -13,7 +13,7 @@ const {
   cleanHtml,
   extractReadableContent,
   scrapeContent
-} = require('../contentScraper'); // prilagodi putanju
+} = require('../src/scripts/contentScraper'); 
 
 describe('fetchHtml', () => {
   it('should fetch HTML content from a URL', async () => {

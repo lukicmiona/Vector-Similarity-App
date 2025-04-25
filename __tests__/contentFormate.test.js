@@ -2,7 +2,7 @@ const { TextEncoder, TextDecoder } = require('util');
 global.TextEncoder = TextEncoder;
 global.TextDecoder = TextDecoder;
 
-const { formatHtmlToMarkdown } = require('../contentFormate');
+const { formatHtmlToMarkdown } = require('../src/scripts/contentFormate');
 
 describe('formatHtmlToMarkdown', () => {
   it('should convert HTML headings to markdown headings', () => {
